@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "WiZ Control",
-    "slug": "wiz_control_mobile",
+    "slug": "wizcontrol",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -22,6 +22,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "50a7fdb0-53fb-41ee-ad70-d6f80113f6c4"
+      }
+    },
+    "owner": "devmatitorress-team"
   }
 }
