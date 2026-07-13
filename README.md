@@ -47,14 +47,29 @@ eas build --platform android --profile preview   # profiles are defined in eas.j
 
 When the cloud build finishes, EAS prints a link — open it on the phone (or scan the QR) and install the `.apk`. The `preview` profile produces an installable APK rather than a Play Store bundle.
 
-**Option B — Local build (needs Android Studio / Android SDK):**
+**Option B — Local APK build (needs JDK 17+ and the Android SDK; much faster after the first build):**
 
 ```bash
-npx expo prebuild --platform android   # generates the native android/ project
-npm run android                        # builds & installs on a connected device/emulator
+npx expo prebuild --platform android   # 1. generate/sync the native android/ project
+cd android
+./gradlew assembleRelease              # 2. build the APK (Windows: .\gradlew assembleRelease)
 ```
 
-### 3. Use it
+The APK lands in `android/app/build/outputs/apk/release/app-release.apk` (~67 MB). Install it either by copying the file to the phone, or directly over USB with debugging enabled:
+
+```bash
+adb install android/app/build/outputs/apk/release/app-release.apk
+```
+
+The **first** Gradle build downloads dependencies and takes ~10-30 min; after that, rebuilds take **2-5 min**. Re-run `npx expo prebuild --platform android` only when `app.json`, icons, or native dependencies change — for plain code changes, `./gradlew assembleRelease` alone is enough.
+
+> ⚠️ **Don't mix Options A and B on the same phone**: EAS builds and local builds are signed with different keys, so installing one over the other fails with "App not installed" — uninstall the existing app first (this wipes saved bulb names).
+
+(Alternative: `npm run android` builds and installs a debug variant directly on a connected device/emulator in one step.)
+
+### 3. Install and use it
+
+When installing, Google Play Protect will warn that it hasn't seen this developer before — tap **"Install anyway"** (the small text link, *not* "Got it", which cancels the install). That's expected for any self-built APK.
 
 Open the app on the phone (connected to the same Wi-Fi as the bulbs) and tap **Discover**. That's it — the APK is fully standalone; there is no server to run.
 
@@ -90,7 +105,7 @@ The logic layer (`src/lib/` — UDP transport, protocol, store, presets, api fac
 
 ## Usage
 
-The app has two tabs. **Bulbs**: tap **Discover** to scan the Wi-Fi network, then use each bulb card — rename (✎), on/off, brightness, color (palette), white color temperature, and scenes. **Themes**: one-tap presets that apply a relaxing multi-color combination across all bulbs at once.
+The app has two tabs. **Bulbs**: tap **Discover** to scan the Wi-Fi network; an **All lights** master switch turns every bulb on/off at once, and each bulb card (laid out two per row) has rename (✎), its own on/off switch, brightness, and a collapsible **Colors & scenes** section with color palette, white color temperature, and scenes. **Themes**: one-tap presets that apply a multi-color combination across all bulbs at once (Soft Pastels, Blues, Sleep, Violets, White & Gold, …).
 
 ## Stack
 
@@ -105,6 +120,8 @@ The app has two tabs. **Bulbs**: tap **Discover** to scan the Wi-Fi network, the
 ```
 App.tsx                    # shell: header + Bulbs/Themes tab bar
 index.ts                   # entry; registers the Buffer polyfill
+scripts/
+  generate-icons.mjs       # regenerates all app icon assets (npm run icons)
 src/
   theme.ts                 # dark futuristic color palette
   screens/
