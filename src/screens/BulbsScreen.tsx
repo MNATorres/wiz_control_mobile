@@ -84,13 +84,14 @@ export function BulbsScreen() {
 
       <View style={styles.grid} key={gridKey}>
         {bulbs.map((bulb) => (
-          <BulbCard
-            key={bulb.mac}
-            bulb={bulb}
-            scenes={scenes}
-            onRenamed={handleRenamed}
-            onForgotten={handleForgotten}
-          />
+          <View key={bulb.mac} style={styles.gridItem}>
+            <BulbCard
+              bulb={bulb}
+              scenes={scenes}
+              onRenamed={handleRenamed}
+              onForgotten={handleForgotten}
+            />
+          </View>
         ))}
       </View>
     </ScrollView>
@@ -163,6 +164,12 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   grid: {
-    gap: 12,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    rowGap: 12,
+  },
+  gridItem: {
+    width: "48.5%",
   },
 });
