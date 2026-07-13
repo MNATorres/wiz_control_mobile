@@ -78,6 +78,35 @@ export const PRESETS: Preset[] = [
       { r: 140, g: 20, b: 30, dimming: 35 },
     ],
   },
+  {
+    key: "sleep",
+    name: "Sleep",
+    colors: [
+      { r: 255, g: 120, b: 40, dimming: 10 },
+      { r: 255, g: 140, b: 60, dimming: 12 },
+      { r: 255, g: 100, b: 30, dimming: 10 },
+    ],
+  },
+  {
+    key: "violets",
+    name: "Violets",
+    colors: [
+      { r: 140, g: 70, b: 255, dimming: 40 },
+      { r: 100, g: 40, b: 200, dimming: 40 },
+      { r: 180, g: 120, b: 255, dimming: 45 },
+      { r: 70, g: 20, b: 150, dimming: 35 },
+    ],
+  },
+  {
+    key: "white-gold",
+    name: "White & Gold",
+    colors: [
+      { r: 255, g: 255, b: 255, dimming: 80 },
+      { r: 255, g: 230, b: 150, dimming: 70 },
+      { r: 255, g: 250, b: 235, dimming: 75 },
+      { r: 255, g: 210, b: 100, dimming: 65 },
+    ],
+  },
 ];
 
 export function getPreset(key: string): Preset | undefined {

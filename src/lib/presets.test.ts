@@ -5,6 +5,15 @@ describe("getPreset", () => {
   it("returns the preset matching the given key", () => {
     expect(getPreset("blues")?.name).toBe("Blues");
     expect(getPreset("warm-reds")?.name).toBe("Warm Reds");
+    expect(getPreset("sleep")?.name).toBe("Sleep");
+    expect(getPreset("violets")?.name).toBe("Violets");
+    expect(getPreset("white-gold")?.name).toBe("White & Gold");
+  });
+
+  it("keeps the Sleep preset dim enough for night use", () => {
+    for (const c of getPreset("sleep")!.colors) {
+      expect(c.dimming).toBeLessThanOrEqual(15);
+    }
   });
 
   it("returns undefined for an unknown key", () => {
