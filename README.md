@@ -78,11 +78,15 @@ Open the installed **WiZ Control (dev)** app on the phone — it connects to the
 
 Note: the `preview` APK from step 2 is a standalone release build — it runs the app but does **not** connect to Metro; use the `development` profile for debugging.
 
-### Type-checking
+### Type-checking and tests
 
 ```bash
-npx tsc --noEmit
+npx tsc --noEmit        # type-check
+npm test                # unit tests (vitest)
+npm run test:coverage   # coverage report for src/lib/
 ```
+
+The logic layer (`src/lib/` — UDP transport, protocol, store, presets, api facade) is fully unit-tested with the native modules mocked, so no device or bulbs are needed to run the suite. CI runs type-check + tests on every push and PR to `main`. The UI layer (components/screens) is verified on-device.
 
 ## Usage
 

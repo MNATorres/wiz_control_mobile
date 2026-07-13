@@ -27,22 +27,31 @@ bulb's address. Bulbs are persisted by MAC (IPs can change under DHCP) in AsyncS
 
 ```bash
 npm install                # setup
-npx tsc --noEmit           # type-check — the only automated verification available
+npx tsc --noEmit           # type-check
+npm test                   # vitest run — unit tests for src/lib/
+npm run test:coverage      # per-file coverage (scoped to src/lib/, see vitest.config.ts)
 npx expo start --dev-client  # dev server (requires a dev build installed on a phone)
 npx expo-doctor            # config sanity check (should stay 20/20)
 eas build --platform android --profile preview  # cloud APK build
 ```
 
-There is no test suite and no linter configured yet. A change isn't done until
-`npx tsc --noEmit` passes.
+No linter is configured yet. A change isn't done until `npx tsc --noEmit` and `npm test`
+both pass — CI (`.github/workflows/ci.yml`) runs both on every push/PR to `main`.
+
+Tests are colocated as `<name>.test.ts` next to the file they cover, run under Node with
+vitest, and mock the native modules (`react-native-udp` via a FakeSocket class,
+AsyncStorage via an in-memory Map, `expo-network` via vi.mock). Coverage is intentionally
+scoped to `src/lib/**` — the UI layer can only be exercised on a real device. Keep
+`src/lib/` at 100%: if you add a lib module, add its test in the same change.
 
 ## Critical constraint: no runnable environment
 
 `react-native-udp` is a **native module**, so the app cannot run in Expo Go, on the web,
 or in this dev environment. Claude cannot launch or visually verify this app; only
-`tsc --noEmit` and `expo-doctor` run here. Real verification (discovery/control against
-physical bulbs) requires the user to build a dev build/APK and test on a phone on the
-same Wi-Fi as the bulbs. Say so explicitly instead of claiming something "works".
+`tsc --noEmit`, `npm test`, and `expo-doctor` run here. Real verification
+(discovery/control against physical bulbs, and anything in the UI layer) requires the
+user to build a dev build/APK and test on a phone on the same Wi-Fi as the bulbs. Say so
+explicitly instead of claiming something "works".
 
 ## Structure
 
