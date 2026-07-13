@@ -80,6 +80,7 @@ src/
       scenes.ts            # WiZ scene id -> name map
 ```
 
-## Note
+## Notes
 
-There's no hardware in a CI/dev environment, so bulb discovery/control can only be verified on a real device on the same Wi-Fi as the bulbs — build the app (above) and tap **Discover**.
+- There's no hardware in a CI/dev environment, so bulb discovery/control can only be verified on a real device on the same Wi-Fi as the bulbs — build the app (above) and tap **Discover**.
+- `react-native-udp` is flagged as unmaintained by the React Native Directory (silenced in `package.json` under `expo.doctor`). It's the standard raw-UDP library for RN and works, but Expo SDK 57 enables the **New Architecture** by default — if the native module fails to load in a dev build, the fallback is to disable it by adding `"newArchEnabled": false` to `app.json`'s `expo` block and rebuilding.
