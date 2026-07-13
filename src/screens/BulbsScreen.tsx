@@ -9,9 +9,12 @@ export function BulbsScreen() {
   const [bulbs, setBulbs] = useState<Bulb[]>([]);
   const [scenes] = useState<Scene[]>(() => api.getScenes());
   const [discovering, setDiscovering] = useState(false);
-  const [allOn, setAllOn] = useState(true);
+  const [bulbStates, setBulbStates] = useState<Record<string, boolean>>({});
   const [gridKey, setGridKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
+
+  // The Flat switch reflects reality: on if at least one bulb is on.
+  const flatOn = bulbs.some((b) => bulbStates[b.mac]);
 
   useEffect(() => {
     api.listBulbs().then(setBulbs).catch((err: Error) => setError(err.message));
@@ -35,12 +38,16 @@ export function BulbsScreen() {
     setBulbs((current) => current.filter((b) => b.mac !== mac));
   };
 
+  const handleStateChange = (mac: string, on: boolean) => {
+    setBulbStates((current) => (current[mac] === on ? current : { ...current, [mac]: on }));
+  };
+
   const toggleAll = (next: boolean) => {
-    setAllOn(next);
+    setBulbStates(Object.fromEntries(bulbs.map((b) => [b.mac, next])));
     api
       .setAllState(next)
       .catch((err: Error) => setError(err.message))
-      // Remount the cards so they re-read pilot state right away.
+      // Remount the cards so every toggle re-reads its pilot state right away.
       .finally(() => setGridKey((k) => k + 1));
   };
 
@@ -63,9 +70,9 @@ export function BulbsScreen() {
 
       {bulbs.length > 0 && (
         <View style={styles.masterRow}>
-          <Text style={styles.masterLabel}>All lights</Text>
+          <Text style={styles.masterLabel}>Flat</Text>
           <Switch
-            value={allOn}
+            value={flatOn}
             onValueChange={toggleAll}
             trackColor={{ false: colors.border, true: colors.accent }}
             thumbColor={colors.text}
@@ -90,6 +97,7 @@ export function BulbsScreen() {
               scenes={scenes}
               onRenamed={handleRenamed}
               onForgotten={handleForgotten}
+              onStateChange={handleStateChange}
             />
           </View>
         ))}

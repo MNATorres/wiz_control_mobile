@@ -28,9 +28,10 @@ interface BulbCardProps {
   scenes: Scene[];
   onRenamed: (bulb: Bulb) => void;
   onForgotten: (mac: string) => void;
+  onStateChange: (mac: string, on: boolean) => void;
 }
 
-export function BulbCard({ bulb, scenes, onRenamed, onForgotten }: BulbCardProps) {
+export function BulbCard({ bulb, scenes, onRenamed, onForgotten, onStateChange }: BulbCardProps) {
   const [pilot, setPilot] = useState<PilotState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>("color");
@@ -45,6 +46,7 @@ export function BulbCard({ bulb, scenes, onRenamed, onForgotten }: BulbCardProps
       .then((result) => {
         setPilot(result);
         setError(null);
+        onStateChange(bulb.mac, result.state ?? false);
       })
       .catch((err: Error) => setError(err.message));
   };
@@ -58,6 +60,7 @@ export function BulbCard({ bulb, scenes, onRenamed, onForgotten }: BulbCardProps
 
   const toggle = (next: boolean) => {
     setPilot((p) => (p ? { ...p, state: next } : p));
+    onStateChange(bulb.mac, next);
     api.setState(bulb.mac, next).catch((err: Error) => setError(err.message)).then(refreshPilot);
   };
 
