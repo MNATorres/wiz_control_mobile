@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, Text, View } from "react-native";
 import * as api from "../lib/api";
 import type { Bulb, Scene } from "../lib/types";
 import { BulbCard } from "../components/BulbCard";
@@ -9,6 +9,8 @@ export function BulbsScreen() {
   const [bulbs, setBulbs] = useState<Bulb[]>([]);
   const [scenes] = useState<Scene[]>(() => api.getScenes());
   const [discovering, setDiscovering] = useState(false);
+  const [allOn, setAllOn] = useState(true);
+  const [gridKey, setGridKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -33,6 +35,15 @@ export function BulbsScreen() {
     setBulbs((current) => current.filter((b) => b.mac !== mac));
   };
 
+  const toggleAll = (next: boolean) => {
+    setAllOn(next);
+    api
+      .setAllState(next)
+      .catch((err: Error) => setError(err.message))
+      // Remount the cards so they re-read pilot state right away.
+      .finally(() => setGridKey((k) => k + 1));
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.content}>
       <View style={styles.toolbar}>
@@ -50,6 +61,18 @@ export function BulbsScreen() {
 
       {error && <Text style={styles.error}>{error}</Text>}
 
+      {bulbs.length > 0 && (
+        <View style={styles.masterRow}>
+          <Text style={styles.masterLabel}>All lights</Text>
+          <Switch
+            value={allOn}
+            onValueChange={toggleAll}
+            trackColor={{ false: colors.border, true: colors.accent }}
+            thumbColor={colors.text}
+          />
+        </View>
+      )}
+
       {bulbs.length === 0 && !discovering && (
         <View style={styles.empty}>
           <Text style={styles.emptyTitle}>No bulbs yet</Text>
@@ -59,7 +82,7 @@ export function BulbsScreen() {
 
       {discovering && bulbs.length === 0 && <ActivityIndicator style={styles.spinner} color={colors.accent} />}
 
-      <View style={styles.grid}>
+      <View style={styles.grid} key={gridKey}>
         {bulbs.map((bulb) => (
           <BulbCard
             key={bulb.mac}
@@ -105,6 +128,22 @@ const styles = StyleSheet.create({
   error: {
     color: colors.danger,
     fontSize: 13,
+  },
+  masterRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 18,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+  },
+  masterLabel: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: colors.text,
   },
   empty: {
     alignItems: "center",
