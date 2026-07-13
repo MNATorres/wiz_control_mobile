@@ -34,6 +34,7 @@ export function BulbCard({ bulb, scenes, onRenamed, onForgotten }: BulbCardProps
   const [pilot, setPilot] = useState<PilotState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>("color");
+  const [expanded, setExpanded] = useState(false);
   const [name, setName] = useState(bulb.name ?? "");
   const nameRef = useRef(bulb.name ?? "");
   const nameInputRef = useRef<TextInput>(null);
@@ -142,21 +143,28 @@ export function BulbCard({ bulb, scenes, onRenamed, onForgotten }: BulbCardProps
         thumbTintColor={colors.accent}
       />
 
-      <View style={styles.tabs}>
-        {(["color", "white", "scenes"] as Mode[]).map((m) => (
-          <Pressable
-            key={m}
-            style={[styles.tab, mode === m && styles.tabActive]}
-            onPress={() => setMode(m)}
-          >
-            <Text style={[styles.tabText, mode === m && styles.tabTextActive]}>
-              {m === "color" ? "Color" : m === "white" ? "White" : "Scenes"}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
+      <Pressable style={styles.expander} onPress={() => setExpanded((e) => !e)}>
+        <Text style={styles.expanderText}>Colors & scenes</Text>
+        <Text style={styles.expanderChevron}>{expanded ? "▾" : "▸"}</Text>
+      </Pressable>
 
-      {mode === "color" && (
+      {expanded && (
+        <View style={styles.tabs}>
+          {(["color", "white", "scenes"] as Mode[]).map((m) => (
+            <Pressable
+              key={m}
+              style={[styles.tab, mode === m && styles.tabActive]}
+              onPress={() => setMode(m)}
+            >
+              <Text style={[styles.tabText, mode === m && styles.tabTextActive]}>
+                {m === "color" ? "Color" : m === "white" ? "White" : "Scenes"}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      )}
+
+      {expanded && mode === "color" && (
         <View style={styles.swatchGrid}>
           {COLOR_PALETTE.map((c, i) => (
             <Pressable
@@ -168,7 +176,7 @@ export function BulbCard({ bulb, scenes, onRenamed, onForgotten }: BulbCardProps
         </View>
       )}
 
-      {mode === "white" && (
+      {expanded && mode === "white" && (
         <>
           <Text style={styles.label}>COLOR TEMPERATURE ({pilot?.temp ?? 2700}K)</Text>
           <Slider
@@ -184,7 +192,7 @@ export function BulbCard({ bulb, scenes, onRenamed, onForgotten }: BulbCardProps
         </>
       )}
 
-      {mode === "scenes" && (
+      {expanded && mode === "scenes" && (
         <View style={styles.sceneGrid}>
           {scenes.map((scene) => (
             <Pressable
@@ -269,6 +277,24 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 1.2,
     color: colors.textMuted,
+  },
+  expander: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: colors.surfaceDeep,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+  },
+  expanderText: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: colors.textMuted,
+  },
+  expanderChevron: {
+    fontSize: 12,
+    color: colors.accent,
   },
   tabs: {
     flexDirection: "row",
