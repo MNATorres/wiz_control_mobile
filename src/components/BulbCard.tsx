@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Switch, Text, TextInput, View } from "react-nati
 import Slider from "@react-native-community/slider";
 import * as api from "../lib/api";
 import type { Bulb, PilotState, Scene } from "../lib/types";
+import { colors } from "../theme";
 
 type Mode = "color" | "white" | "scenes";
 
@@ -27,15 +28,15 @@ interface BulbCardProps {
   scenes: Scene[];
   onRenamed: (bulb: Bulb) => void;
   onForgotten: (mac: string) => void;
-  refreshSignal: number;
 }
 
-export function BulbCard({ bulb, scenes, onRenamed, onForgotten, refreshSignal }: BulbCardProps) {
+export function BulbCard({ bulb, scenes, onRenamed, onForgotten }: BulbCardProps) {
   const [pilot, setPilot] = useState<PilotState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>("color");
   const [name, setName] = useState(bulb.name ?? "");
   const nameRef = useRef(bulb.name ?? "");
+  const nameInputRef = useRef<TextInput>(null);
 
   const refreshPilot = () => {
     api
@@ -52,7 +53,7 @@ export function BulbCard({ bulb, scenes, onRenamed, onForgotten, refreshSignal }
     const interval = setInterval(refreshPilot, 5000);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bulb.mac, refreshSignal]);
+  }, [bulb.mac]);
 
   const toggle = (next: boolean) => {
     setPilot((p) => (p ? { ...p, state: next } : p));
@@ -97,16 +98,29 @@ export function BulbCard({ bulb, scenes, onRenamed, onForgotten, refreshSignal }
   return (
     <View style={[styles.card, !pilot && styles.offline]}>
       <View style={styles.header}>
-        <TextInput
-          style={styles.name}
-          value={name}
-          placeholder={bulb.ip}
-          placeholderTextColor="#9ca3af"
-          onChangeText={setName}
-          onBlur={commitName}
+        <View style={styles.nameWrap}>
+          <TextInput
+            ref={nameInputRef}
+            style={styles.name}
+            value={name}
+            placeholder={bulb.ip}
+            placeholderTextColor={colors.textMuted}
+            onChangeText={setName}
+            onBlur={commitName}
+            returnKeyType="done"
+          />
+          <Pressable onPress={() => nameInputRef.current?.focus()} hitSlop={8}>
+            <Text style={styles.editIcon}>✎</Text>
+          </Pressable>
+        </View>
+        <Switch
+          value={pilot?.state ?? false}
+          onValueChange={toggle}
+          trackColor={{ false: colors.border, true: colors.accent }}
+          thumbColor={colors.text}
         />
-        <Switch value={pilot?.state ?? false} onValueChange={toggle} />
       </View>
+      <Text style={styles.ip}>{bulb.ip}</Text>
 
       {error && (
         <View style={styles.errorRow}>
@@ -117,14 +131,15 @@ export function BulbCard({ bulb, scenes, onRenamed, onForgotten, refreshSignal }
         </View>
       )}
 
-      <Text style={styles.label}>Brightness</Text>
+      <Text style={styles.label}>BRIGHTNESS</Text>
       <Slider
         minimumValue={10}
         maximumValue={100}
         value={pilot?.dimming ?? 100}
         onSlidingComplete={commitDimming}
-        minimumTrackTintColor="#6366f1"
-        maximumTrackTintColor="#d1d5db"
+        minimumTrackTintColor={colors.accent}
+        maximumTrackTintColor={colors.border}
+        thumbTintColor={colors.accent}
       />
 
       <View style={styles.tabs}>
@@ -155,15 +170,16 @@ export function BulbCard({ bulb, scenes, onRenamed, onForgotten, refreshSignal }
 
       {mode === "white" && (
         <>
-          <Text style={styles.label}>Color temperature ({pilot?.temp ?? 2700}K)</Text>
+          <Text style={styles.label}>COLOR TEMPERATURE ({pilot?.temp ?? 2700}K)</Text>
           <Slider
             minimumValue={2200}
             maximumValue={6500}
             step={100}
             value={pilot?.temp ?? 2700}
             onSlidingComplete={commitTemp}
-            minimumTrackTintColor="#6366f1"
-            maximumTrackTintColor="#d1d5db"
+            minimumTrackTintColor={colors.accent}
+            maximumTrackTintColor={colors.border}
+            thumbTintColor={colors.accent}
           />
         </>
       )}
@@ -176,7 +192,11 @@ export function BulbCard({ bulb, scenes, onRenamed, onForgotten, refreshSignal }
               style={[styles.scene, pilot?.sceneId === scene.id && styles.sceneActive]}
               onPress={() => selectScene(scene.id)}
             >
-              <Text style={styles.sceneText}>{scene.name}</Text>
+              <Text
+                style={[styles.sceneText, pilot?.sceneId === scene.id && styles.sceneTextActive]}
+              >
+                {scene.name}
+              </Text>
             </Pressable>
           ))}
         </View>
@@ -187,10 +207,10 @@ export function BulbCard({ bulb, scenes, onRenamed, onForgotten, refreshSignal }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#ffffff",
-    borderRadius: 14,
+    backgroundColor: colors.surface,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: colors.border,
     padding: 16,
     gap: 10,
   },
@@ -203,59 +223,78 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 8,
   },
-  name: {
+  nameWrap: {
     flex: 1,
-    fontSize: 15,
-    fontWeight: "500",
-    color: "#111827",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  name: {
+    flexShrink: 1,
+    fontSize: 16,
+    fontWeight: "600",
+    color: colors.text,
+    padding: 0,
+  },
+  editIcon: {
+    color: colors.textMuted,
+    fontSize: 14,
+  },
+  ip: {
+    fontSize: 11,
+    color: colors.textMuted,
+    marginTop: -6,
   },
   errorRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#fef2f2",
-    borderRadius: 8,
+    backgroundColor: colors.dangerBg,
+    borderRadius: 10,
     paddingVertical: 6,
     paddingHorizontal: 10,
   },
   errorText: {
-    color: "#dc2626",
+    color: colors.danger,
     fontSize: 12,
     flexShrink: 1,
   },
   forget: {
-    color: "#dc2626",
+    color: colors.danger,
     fontSize: 12,
     fontWeight: "600",
     textDecorationLine: "underline",
   },
   label: {
-    fontSize: 12,
-    color: "#6b7280",
+    fontSize: 10,
+    letterSpacing: 1.2,
+    color: colors.textMuted,
   },
   tabs: {
     flexDirection: "row",
     gap: 2,
-    backgroundColor: "#f3f4f6",
-    borderRadius: 8,
+    backgroundColor: colors.surfaceDeep,
+    borderRadius: 10,
     padding: 3,
   },
   tab: {
     flex: 1,
-    paddingVertical: 6,
-    borderRadius: 6,
+    paddingVertical: 7,
+    borderRadius: 8,
     alignItems: "center",
   },
   tabActive: {
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.accentSoft,
+    borderWidth: 1,
+    borderColor: colors.accentBorder,
   },
   tabText: {
     fontSize: 12,
     fontWeight: "500",
-    color: "#6b7280",
+    color: colors.textMuted,
   },
   tabTextActive: {
-    color: "#111827",
+    color: colors.accent,
   },
   swatchGrid: {
     flexDirection: "row",
@@ -263,11 +302,11 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   swatch: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: colors.border,
   },
   sceneGrid: {
     flexDirection: "row",
@@ -276,17 +315,20 @@ const styles = StyleSheet.create({
   },
   scene: {
     borderWidth: 1,
-    borderColor: "#e5e7eb",
-    borderRadius: 8,
+    borderColor: colors.border,
+    borderRadius: 10,
     paddingVertical: 6,
     paddingHorizontal: 10,
   },
   sceneActive: {
-    backgroundColor: "#eef2ff",
-    borderColor: "#6366f1",
+    backgroundColor: colors.accentSoft,
+    borderColor: colors.accentBorder,
   },
   sceneText: {
     fontSize: 12,
-    color: "#111827",
+    color: colors.text,
+  },
+  sceneTextActive: {
+    color: colors.accent,
   },
 });
