@@ -143,6 +143,38 @@ describe("control commands", () => {
   });
 });
 
+describe("setAllState", () => {
+  it("sends the state to every stored bulb", async () => {
+    seedBulbs([
+      { mac: "aa", ip: "192.168.100.11" },
+      { mac: "bb", ip: "192.168.100.12" },
+    ]);
+
+    await api.setAllState(false);
+
+    expect(sendUnicast.mock.calls).toEqual([
+      ["192.168.100.11", { method: "setPilot", params: { state: false } }],
+      ["192.168.100.12", { method: "setPilot", params: { state: false } }],
+    ]);
+  });
+
+  it("keeps going when individual bulbs fail", async () => {
+    seedBulbs([
+      { mac: "aa", ip: "192.168.100.11" },
+      { mac: "bb", ip: "192.168.100.12" },
+    ]);
+    sendUnicast.mockRejectedValueOnce(new Error("offline"));
+
+    await expect(api.setAllState(true)).resolves.toBeUndefined();
+    expect(sendUnicast).toHaveBeenCalledTimes(2);
+  });
+
+  it("is a no-op with no stored bulbs", async () => {
+    await api.setAllState(true);
+    expect(sendUnicast).not.toHaveBeenCalled();
+  });
+});
+
 describe("applyPreset", () => {
   it("cycles the preset palette across all stored bulbs by index", async () => {
     seedBulbs([

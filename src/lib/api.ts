@@ -46,6 +46,13 @@ export function setState(mac: string, on: boolean): Promise<void> {
   return control(mac, { state: on });
 }
 
+export async function setAllState(on: boolean): Promise<void> {
+  const bulbs = await store.listBulbs();
+  await Promise.allSettled(
+    bulbs.map((bulb) => sendUnicast(bulb.ip, setPilotMessage({ state: on }))),
+  );
+}
+
 export function setDimming(mac: string, value: number): Promise<void> {
   return control(mac, { dimming: value });
 }
