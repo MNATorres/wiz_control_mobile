@@ -48,10 +48,14 @@ same Wi-Fi as the bulbs. Say so explicitly instead of claiming something "works"
 
 ```
 index.ts                   # entry: loads src/lib/polyfills BEFORE App (Buffer global)
-App.tsx                    # main screen: discover button, preset bar, bulb list
+App.tsx                    # shell: safe-area header + custom Bulbs/Themes tab bar
 src/
+├── theme.ts               # dark futuristic palette — single source of truth for colors
+├── screens/
+│   ├── BulbsScreen.tsx    # discover button + bulb card list (owns bulbs state)
+│   └── ThemesScreen.tsx   # preset cards with one-tap apply-to-all
 ├── components/
-│   └── BulbCard.tsx       # one bulb: name, on/off, brightness, color/white/scenes tabs
+│   └── BulbCard.tsx       # one bulb: rename (✎), on/off, brightness, color/white/scenes tabs
 └── lib/
     ├── api.ts             # high-level facade: discoverBulbs, setColor, applyPreset, …
     ├── store.ts           # AsyncStorage persistence (key "wiz.bulbs"), keyed by MAC
@@ -77,8 +81,11 @@ features in this same shape.
 - Errors: unknown mac/preset -> `throw new Error("Unknown bulb"/"Unknown preset")`;
   UDP timeout -> rejected promise from `sendUnicast` after 3 retries. UI catches and
   shows per-card errors without breaking the rest of the list.
-- Styling: `StyleSheet.create` colocated at the bottom of each component file; gray-scale
-  palette with `#6366f1` (indigo) as accent. No styling library.
+- Styling: `StyleSheet.create` colocated at the bottom of each component file; all colors
+  come from `src/theme.ts` (dark bg `#0B0F1A`, cyan accent `#22D3EE`) — never hardcode
+  colors in components. No styling library. Navigation is a hand-rolled tab switch in
+  App.tsx — no react-navigation (would pull in native modules and force a dev-client
+  rebuild); prefer pure-JS solutions for the same reason.
 - `react-native-udp` types are incomplete (EventEmitter methods missing): `wiz/udp.ts`
   defines a local `WizSocket` interface and casts the created socket once. Extend that
   interface rather than sprinkling `as any`.

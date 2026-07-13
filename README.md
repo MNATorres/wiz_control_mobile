@@ -86,7 +86,7 @@ npx tsc --noEmit
 
 ## Usage
 
-Tap **Discover** to scan the Wi-Fi network, then use each bulb card: on/off, brightness, color (palette), white color temperature, and scenes. The **Presets** bar applies a relaxing multi-color combination across all bulbs at once.
+The app has two tabs. **Bulbs**: tap **Discover** to scan the Wi-Fi network, then use each bulb card — rename (✎), on/off, brightness, color (palette), white color temperature, and scenes. **Themes**: one-tap presets that apply a relaxing multi-color combination across all bulbs at once.
 
 ## Stack
 
@@ -99,11 +99,15 @@ Tap **Discover** to scan the Wi-Fi network, then use each bulb card: on/off, bri
 ## Project structure
 
 ```
-App.tsx                    # main screen: discover + presets + bulb grid
+App.tsx                    # shell: header + Bulbs/Themes tab bar
 index.ts                   # entry; registers the Buffer polyfill
 src/
+  theme.ts                 # dark futuristic color palette
+  screens/
+    BulbsScreen.tsx        # discover + bulb card list
+    ThemesScreen.tsx       # multi-bulb preset cards with one-tap apply
   components/
-    BulbCard.tsx           # one bulb: on/off, brightness, color/white/scenes
+    BulbCard.tsx           # one bulb: rename, on/off, brightness, color/white/scenes
   lib/
     api.ts                 # high-level discovery + control (replaces the old HTTP backend)
     store.ts               # AsyncStorage persistence for known bulbs
