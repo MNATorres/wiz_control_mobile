@@ -42,7 +42,7 @@ npm install
 ```bash
 npm install -g eas-cli
 eas login                                        # your Expo account
-eas build --platform android --profile preview   # first run also creates eas.json
+eas build --platform android --profile preview   # profiles are defined in eas.json
 ```
 
 When the cloud build finishes, EAS prints a link — open it on the phone (or scan the QR) and install the `.apk`. The `preview` profile produces an installable APK rather than a Play Store bundle.
@@ -58,15 +58,25 @@ npm run android                        # builds & installs on a connected device
 
 Open the app on the phone (connected to the same Wi-Fi as the bulbs) and tap **Discover**. That's it — the APK is fully standalone; there is no server to run.
 
-### Day-to-day development
+### Day-to-day development (debugging with hot-reload)
 
-Once a dev build from step 2 is installed on the phone, you don't need to rebuild for JS/TS changes:
+> **Expo Go does not work with this app** — `react-native-udp` is a native module that Expo Go doesn't include, so scanning the QR from `npx expo start` with Expo Go fails (e.g. "Project is incompatible with this version of Expo Go"). Use a **development build** instead: your own Expo Go-like client that bundles the native modules.
+
+One-time: build and install the development client on the phone:
+
+```bash
+eas build --platform android --profile development
+```
+
+Then, for every coding session:
 
 ```bash
 npx expo start --dev-client
 ```
 
-Open the app and it connects to the Metro bundler on your PC (phone and PC must be on the same network); edits hot-reload. You only need to rebuild (step 2) when native modules or `app.json` change.
+Open the installed **WiZ Control (dev)** app on the phone — it connects to the Metro bundler on your PC (phone and PC on the same network) and JS/TS edits hot-reload. You only need to rebuild the dev client when native modules or `app.json` change.
+
+Note: the `preview` APK from step 2 is a standalone release build — it runs the app but does **not** connect to Metro; use the `development` profile for debugging.
 
 ### Type-checking
 
