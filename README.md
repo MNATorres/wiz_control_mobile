@@ -15,38 +15,64 @@ WiZ bulbs speak a local UDP JSON protocol on port **38899** — no cloud or acco
 
 Control afterward is **unicast** — a `setPilot` message sent straight to a bulb's IP.
 
+## Requirements
+
+- Node.js 20+ and npm
+- An Android phone (or emulator) on the **same Wi-Fi network as the WiZ bulbs**
+- A free [Expo account](https://expo.dev/signup) (for cloud APK builds), **or** Android Studio + Android SDK (for local builds)
+
 ## ⚠️ Requires a development build (not Expo Go)
 
-`react-native-udp` is a native module, so this app **cannot run in Expo Go**. You need a custom dev build or a release APK:
+`react-native-udp` is a native module, so this app **cannot run in Expo Go**. You need a custom dev build or a release APK — steps below.
 
-### Option A — Build an APK with EAS (recommended)
+## Running the project
+
+### 1. Clone and install
+
+```bash
+git clone https://github.com/MNATorres/wiz_control_mobile.git
+cd wiz_control_mobile
+npm install
+```
+
+### 2. Build and install the app on your phone
+
+**Option A — Cloud build with EAS (recommended, no Android SDK needed):**
 
 ```bash
 npm install -g eas-cli
-eas login
-eas build --platform android --profile preview
+eas login                                        # your Expo account
+eas build --platform android --profile preview   # first run also creates eas.json
 ```
 
-`preview` produces an installable `.apk`. EAS builds in the cloud and gives you a download link. (Requires a free Expo account.)
+When the cloud build finishes, EAS prints a link — open it on the phone (or scan the QR) and install the `.apk`. The `preview` profile produces an installable APK rather than a Play Store bundle.
 
-### Option B — Local build
+**Option B — Local build (needs Android Studio / Android SDK):**
 
 ```bash
 npx expo prebuild --platform android   # generates the native android/ project
 npm run android                        # builds & installs on a connected device/emulator
 ```
 
-Requires Android Studio / the Android SDK installed locally.
+### 3. Use it
 
-### Running in development after the first dev build
+Open the app on the phone (connected to the same Wi-Fi as the bulbs) and tap **Discover**. That's it — the APK is fully standalone; there is no server to run.
 
-Once a dev build is installed on the phone:
+### Day-to-day development
+
+Once a dev build from step 2 is installed on the phone, you don't need to rebuild for JS/TS changes:
 
 ```bash
 npx expo start --dev-client
 ```
 
-Then open the app on the phone (same Wi-Fi as the bulbs) and it connects to the Metro bundler.
+Open the app and it connects to the Metro bundler on your PC (phone and PC must be on the same network); edits hot-reload. You only need to rebuild (step 2) when native modules or `app.json` change.
+
+### Type-checking
+
+```bash
+npx tsc --noEmit
+```
 
 ## Usage
 
