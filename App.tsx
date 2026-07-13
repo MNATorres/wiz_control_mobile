@@ -77,7 +77,9 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
     backgroundColor: colors.surfaceDeep,
     paddingTop: 10,
-    paddingBottom: 22,
+    // The app draws edge-to-edge on Android, so the system navigation bar
+    // (48dp with 3-button nav) overlays the bottom — pad past it.
+    paddingBottom: 58,
   },
   tabItem: {
     flex: 1,
