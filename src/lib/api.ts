@@ -5,7 +5,7 @@ import { PRESETS, colorForIndex, getPreset, type Preset } from "./presets";
 import * as store from "./store";
 import type { Bulb, PilotState, RGB, Scene } from "./types";
 
-export { randomColor } from "./color";
+export { hsvToRgb, randomColor } from "./color";
 
 export function listBulbs(): Promise<Bulb[]> {
   return store.listBulbs();

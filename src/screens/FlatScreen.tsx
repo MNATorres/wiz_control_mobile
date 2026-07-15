@@ -13,12 +13,20 @@ function sameColor(a: RGB, b: RGB): boolean {
   return a.r === b.r && a.g === b.g && a.b === b.b;
 }
 
+// Fixed rainbow strip rendered above the hue slider as a visual reference.
+const HUE_STEPS = Array.from({ length: 24 }, (_, i) => api.hsvToRgb(i * 15, 1, 1));
+
 export function FlatScreen() {
   const [on, setOn] = useState(false);
   const [brightness, setBrightness] = useState(70);
   const [current, setCurrent] = useState<RGB | null>(null);
   const [favorites, setFavorites] = useState<RGB[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [hue, setHue] = useState(180);
+  const [saturation, setSaturation] = useState(100);
+  const [pickerValue, setPickerValue] = useState(100);
+
+  const pickerColor = api.hsvToRgb(hue, saturation / 100, pickerValue / 100);
 
   // The power switch reflects reality: on if at least one bulb reports on.
   const refreshPower = async () => {
@@ -64,6 +72,12 @@ export function FlatScreen() {
 
   const rollRandom = () => {
     applyColor(api.randomColor());
+  };
+
+  // Slider callbacks receive the final value directly — state updates from
+  // onValueChange may not be flushed yet when onSlidingComplete fires.
+  const applyHsv = (h: number, s: number, v: number) => {
+    applyColor(api.hsvToRgb(h, s / 100, v / 100));
   };
 
   const isFavorite = current !== null && favorites.some((f) => sameColor(f, current));
@@ -137,6 +151,54 @@ export function FlatScreen() {
             </Pressable>
           )}
         </View>
+
+        <View style={styles.pickerHeader}>
+          <Text style={styles.sectionLabel}>COLOR PICKER</Text>
+          <View style={[styles.pickerPreview, { backgroundColor: rgbString(pickerColor) }]} />
+        </View>
+
+        <View style={styles.rainbow}>
+          {HUE_STEPS.map((c, i) => (
+            <View key={i} style={[styles.rainbowSeg, { backgroundColor: rgbString(c) }]} />
+          ))}
+        </View>
+        <Slider
+          minimumValue={0}
+          maximumValue={360}
+          step={1}
+          value={hue}
+          onValueChange={setHue}
+          onSlidingComplete={(v) => applyHsv(v, saturation, pickerValue)}
+          minimumTrackTintColor={colors.accent}
+          maximumTrackTintColor={colors.border}
+          thumbTintColor={colors.accent}
+        />
+
+        <Text style={styles.pickerLabel}>SATURATION</Text>
+        <Slider
+          minimumValue={0}
+          maximumValue={100}
+          step={1}
+          value={saturation}
+          onValueChange={setSaturation}
+          onSlidingComplete={(v) => applyHsv(hue, v, pickerValue)}
+          minimumTrackTintColor={colors.accent}
+          maximumTrackTintColor={colors.border}
+          thumbTintColor={colors.accent}
+        />
+
+        <Text style={styles.pickerLabel}>BRIGHTNESS</Text>
+        <Slider
+          minimumValue={5}
+          maximumValue={100}
+          step={1}
+          value={pickerValue}
+          onValueChange={setPickerValue}
+          onSlidingComplete={(v) => applyHsv(hue, saturation, v)}
+          minimumTrackTintColor={colors.accent}
+          maximumTrackTintColor={colors.border}
+          thumbTintColor={colors.accent}
+        />
       </View>
 
       <View style={styles.card}>
@@ -260,5 +322,33 @@ const styles = StyleSheet.create({
   hint: {
     fontSize: 12,
     color: colors.textMuted,
+  },
+  pickerHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 6,
+  },
+  pickerPreview: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  pickerLabel: {
+    fontSize: 10,
+    letterSpacing: 1.2,
+    color: colors.textMuted,
+    marginTop: -4,
+  },
+  rainbow: {
+    flexDirection: "row",
+    height: 8,
+    borderRadius: 4,
+    overflow: "hidden",
+  },
+  rainbowSeg: {
+    flex: 1,
   },
 });
