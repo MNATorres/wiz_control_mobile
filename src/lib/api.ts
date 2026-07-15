@@ -3,7 +3,9 @@ import { sendBroadcast, sendUnicast } from "./wiz/udp";
 import { SCENES } from "./wiz/scenes";
 import { PRESETS, colorForIndex, getPreset, type Preset } from "./presets";
 import * as store from "./store";
-import type { Bulb, PilotState, Scene } from "./types";
+import type { Bulb, PilotState, RGB, Scene } from "./types";
+
+export { randomColor } from "./color";
 
 export function listBulbs(): Promise<Bulb[]> {
   return store.listBulbs();
@@ -51,6 +53,36 @@ export async function setAllState(on: boolean): Promise<void> {
   await Promise.allSettled(
     bulbs.map((bulb) => sendUnicast(bulb.ip, setPilotMessage({ state: on }))),
   );
+}
+
+export async function setAllDimming(value: number): Promise<void> {
+  const bulbs = await store.listBulbs();
+  await Promise.allSettled(
+    bulbs.map((bulb) => sendUnicast(bulb.ip, setPilotMessage({ dimming: value }))),
+  );
+}
+
+// Turns the bulbs on as it colors them, so a tap on a color always has a
+// visible effect even when the flat is off.
+export async function setAllColor(rgb: RGB): Promise<void> {
+  const bulbs = await store.listBulbs();
+  await Promise.allSettled(
+    bulbs.map((bulb) =>
+      sendUnicast(bulb.ip, setPilotMessage({ state: true, r: rgb.r, g: rgb.g, b: rgb.b })),
+    ),
+  );
+}
+
+export function getFavoriteColors(): Promise<RGB[]> {
+  return store.listFavoriteColors();
+}
+
+export function addFavoriteColor(color: RGB): Promise<RGB[]> {
+  return store.addFavoriteColor(color);
+}
+
+export function removeFavoriteColor(color: RGB): Promise<RGB[]> {
+  return store.removeFavoriteColor(color);
 }
 
 export function setDimming(mac: string, value: number): Promise<void> {

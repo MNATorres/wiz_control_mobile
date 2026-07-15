@@ -175,6 +175,57 @@ describe("setAllState", () => {
   });
 });
 
+describe("setAllDimming / setAllColor", () => {
+  beforeEach(() => {
+    seedBulbs([
+      { mac: "aa", ip: "192.168.100.11" },
+      { mac: "bb", ip: "192.168.100.12" },
+    ]);
+  });
+
+  it("sends the brightness to every stored bulb", async () => {
+    await api.setAllDimming(35);
+    expect(sendUnicast.mock.calls).toEqual([
+      ["192.168.100.11", { method: "setPilot", params: { dimming: 35 } }],
+      ["192.168.100.12", { method: "setPilot", params: { dimming: 35 } }],
+    ]);
+  });
+
+  it("sends the color to every stored bulb, turning them on", async () => {
+    await api.setAllColor({ r: 10, g: 20, b: 30 });
+    expect(sendUnicast.mock.calls).toEqual([
+      ["192.168.100.11", { method: "setPilot", params: { state: true, r: 10, g: 20, b: 30 } }],
+      ["192.168.100.12", { method: "setPilot", params: { state: true, r: 10, g: 20, b: 30 } }],
+    ]);
+  });
+
+  it("keeps going when individual bulbs fail", async () => {
+    sendUnicast.mockRejectedValueOnce(new Error("offline"));
+    await expect(api.setAllColor({ r: 1, g: 2, b: 3 })).resolves.toBeUndefined();
+    expect(sendUnicast).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("favorite colors", () => {
+  const red = { r: 255, g: 0, b: 0 };
+
+  it("adds, lists, and removes favorites through the facade", async () => {
+    expect(await api.getFavoriteColors()).toEqual([]);
+    expect(await api.addFavoriteColor(red)).toEqual([red]);
+    expect(await api.removeFavoriteColor(red)).toEqual([]);
+  });
+});
+
+describe("randomColor", () => {
+  it("is exposed through the facade", () => {
+    const c = api.randomColor();
+    for (const channel of [c.r, c.g, c.b]) {
+      expect(channel).toBeGreaterThanOrEqual(0);
+      expect(channel).toBeLessThanOrEqual(255);
+    }
+  });
+});
+
 describe("applyPreset", () => {
   it("cycles the preset palette across all stored bulbs by index", async () => {
     seedBulbs([
