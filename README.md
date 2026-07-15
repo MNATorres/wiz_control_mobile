@@ -105,7 +105,7 @@ The logic layer (`src/lib/` — UDP transport, protocol, store, presets, api fac
 
 ## Usage
 
-The app has three tabs. **Bulbs**: tap **Discover** to scan the Wi-Fi network; a **Flat** master switch turns every bulb on/off at once (it reads as *on* whenever at least one bulb is on), and each bulb card (laid out two per row) has rename (✎), its own on/off switch, brightness, and a collapsible **Colors & scenes** section with color palette, white color temperature, and scenes. **Flat**: whole-apartment controls — power, brightness, static colors, a 🎲 random vivid color, and favorite colors (save the current color, tap to apply, long-press to remove; persisted on the device). **Themes**: one-tap presets that apply a multi-color combination across all bulbs at once (Soft Pastels, Blues, Sleep, Violets, White & Gold, …).
+The app has three tabs. **Bulbs**: tap **Discover** to scan the Wi-Fi network; a **Flat** master switch turns every bulb on/off at once (it reads as *on* whenever at least one bulb is on), and each bulb card (laid out two per row) has rename (✎), its own on/off switch, brightness, and a collapsible **Colors & scenes** section with color palette, white color temperature, and scenes. **Flat**: whole-apartment controls — power, brightness, static colors, a 🎲 random vivid color, a full HSV color picker (hue/saturation/brightness sliders — any of the 16M colors), and favorite colors (save the current color, tap to apply, long-press to remove; persisted on the device). **Themes**: one-tap presets that apply a multi-color combination across all bulbs at once (Soft Pastels, Blues, Sleep, Violets, White & Gold, …).
 
 ## Stack
 
