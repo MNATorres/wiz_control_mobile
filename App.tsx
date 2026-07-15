@@ -3,12 +3,14 @@ import { Pressable, StatusBar as RNStatusBar, StyleSheet, Text, View } from "rea
 import { StatusBar } from "expo-status-bar";
 import { colors } from "./src/theme";
 import { BulbsScreen } from "./src/screens/BulbsScreen";
+import { FlatScreen } from "./src/screens/FlatScreen";
 import { ThemesScreen } from "./src/screens/ThemesScreen";
 
-type Tab = "bulbs" | "themes";
+type Tab = "bulbs" | "flat" | "themes";
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "bulbs", label: "Bulbs" },
+  { key: "flat", label: "Flat" },
   { key: "themes", label: "Themes" },
 ];
 
@@ -25,7 +27,9 @@ export default function App() {
         <Text style={styles.subtitle}>Smart lighting, right on your network</Text>
       </View>
 
-      <View style={styles.body}>{tab === "bulbs" ? <BulbsScreen /> : <ThemesScreen />}</View>
+      <View style={styles.body}>
+        {tab === "bulbs" ? <BulbsScreen /> : tab === "flat" ? <FlatScreen /> : <ThemesScreen />}
+      </View>
 
       <View style={styles.tabBar}>
         {TABS.map((t) => (
