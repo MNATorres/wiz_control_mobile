@@ -22,3 +22,9 @@ export interface Scene {
   id: number;
   name: string;
 }
+
+export interface RGB {
+  r: number;
+  g: number;
+  b: number;
+}
