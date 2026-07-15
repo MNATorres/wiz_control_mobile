@@ -57,20 +57,22 @@ explicitly instead of claiming something "works".
 
 ```
 index.ts                   # entry: loads src/lib/polyfills BEFORE App (Buffer global)
-App.tsx                    # shell: safe-area header + custom Bulbs/Themes tab bar
+App.tsx                    # shell: safe-area header + custom Bulbs/Flat/Themes tab bar
 src/
 ├── theme.ts               # dark futuristic palette — single source of truth for colors
 ├── screens/
-│   ├── BulbsScreen.tsx    # discover button + bulb card list (owns bulbs state)
+│   ├── BulbsScreen.tsx    # discover button + Flat master switch + bulb card grid
+│   ├── FlatScreen.tsx     # whole-apartment power/brightness/colors/favorites
 │   └── ThemesScreen.tsx   # preset cards with one-tap apply-to-all
 ├── components/
 │   └── BulbCard.tsx       # one bulb: rename (✎), on/off, brightness, color/white/scenes tabs
 └── lib/
-    ├── api.ts             # high-level facade: discoverBulbs, setColor, applyPreset, …
-    ├── store.ts           # AsyncStorage persistence (key "wiz.bulbs"), keyed by MAC
+    ├── api.ts             # high-level facade: discoverBulbs, setColor, setAll*, favorites, …
+    ├── store.ts           # AsyncStorage persistence: bulbs (by MAC) + favorite colors
+    ├── color.ts           # HSV->RGB conversion + random vivid color
     ├── presets.ts         # curated multi-bulb color presets (data + helpers)
     ├── polyfills.ts       # global Buffer shim required by react-native-udp
-    ├── types.ts           # Bulb, PilotState, Scene
+    ├── types.ts           # Bulb, PilotState, Scene, RGB
     └── wiz/
         ├── udp.ts         # UDP transport: sendUnicast (retry) + sendBroadcast (collect window)
         ├── protocol.ts    # getPilot/setPilot message builders + PilotParams types

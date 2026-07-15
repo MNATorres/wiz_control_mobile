@@ -105,7 +105,7 @@ The logic layer (`src/lib/` — UDP transport, protocol, store, presets, api fac
 
 ## Usage
 
-The app has two tabs. **Bulbs**: tap **Discover** to scan the Wi-Fi network; an **All lights** master switch turns every bulb on/off at once, and each bulb card (laid out two per row) has rename (✎), its own on/off switch, brightness, and a collapsible **Colors & scenes** section with color palette, white color temperature, and scenes. **Themes**: one-tap presets that apply a multi-color combination across all bulbs at once (Soft Pastels, Blues, Sleep, Violets, White & Gold, …).
+The app has three tabs. **Bulbs**: tap **Discover** to scan the Wi-Fi network; a **Flat** master switch turns every bulb on/off at once (it reads as *on* whenever at least one bulb is on), and each bulb card (laid out two per row) has rename (✎), its own on/off switch, brightness, and a collapsible **Colors & scenes** section with color palette, white color temperature, and scenes. **Flat**: whole-apartment controls — power, brightness, static colors, a 🎲 random vivid color, and favorite colors (save the current color, tap to apply, long-press to remove; persisted on the device). **Themes**: one-tap presets that apply a multi-color combination across all bulbs at once (Soft Pastels, Blues, Sleep, Violets, White & Gold, …).
 
 ## Stack
 
@@ -123,15 +123,17 @@ index.ts                   # entry; registers the Buffer polyfill
 scripts/
   generate-icons.mjs       # regenerates all app icon assets (npm run icons)
 src/
-  theme.ts                 # dark futuristic color palette
+  theme.ts                 # dark futuristic color palette + shared static color swatches
   screens/
-    BulbsScreen.tsx        # discover + bulb card list
+    BulbsScreen.tsx        # discover + Flat master switch + bulb card grid
+    FlatScreen.tsx         # whole-apartment power/brightness/colors/favorites
     ThemesScreen.tsx       # multi-bulb preset cards with one-tap apply
   components/
     BulbCard.tsx           # one bulb: rename, on/off, brightness, color/white/scenes
   lib/
     api.ts                 # high-level discovery + control (replaces the old HTTP backend)
-    store.ts               # AsyncStorage persistence for known bulbs
+    store.ts               # AsyncStorage persistence for known bulbs + favorite colors
+    color.ts               # HSV->RGB conversion + random vivid color
     presets.ts             # relaxing multi-bulb color presets
     polyfills.ts           # Buffer global for react-native-udp
     types.ts               # shared types
