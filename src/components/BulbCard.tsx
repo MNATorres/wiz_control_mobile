@@ -3,21 +3,9 @@ import { Pressable, StyleSheet, Switch, Text, TextInput, View } from "react-nati
 import Slider from "@react-native-community/slider";
 import * as api from "../lib/api";
 import type { Bulb, PilotState, Scene } from "../lib/types";
-import { colors } from "../theme";
+import { colorPalette, colors } from "../theme";
 
 type Mode = "color" | "white" | "scenes";
-
-const COLOR_PALETTE = [
-  { r: 255, g: 87, b: 87 },
-  { r: 255, g: 150, b: 60 },
-  { r: 255, g: 214, b: 90 },
-  { r: 120, g: 220, b: 120 },
-  { r: 70, g: 200, b: 200 },
-  { r: 80, g: 140, b: 255 },
-  { r: 150, g: 110, b: 255 },
-  { r: 240, g: 130, b: 220 },
-  { r: 255, g: 255, b: 255 },
-];
 
 function rgbString(r?: number, g?: number, b?: number): string {
   return `rgb(${r ?? 255}, ${g ?? 255}, ${b ?? 255})`;
@@ -169,7 +157,7 @@ export function BulbCard({ bulb, scenes, onRenamed, onForgotten, onStateChange }
 
       {expanded && mode === "color" && (
         <View style={styles.swatchGrid}>
-          {COLOR_PALETTE.map((c, i) => (
+          {colorPalette.map((c, i) => (
             <Pressable
               key={i}
               style={[styles.swatch, { backgroundColor: rgbString(c.r, c.g, c.b) }]}
