@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import type { Bulb } from "./types";
+import type { Bulb, RGB } from "./types";
 
 const STORAGE_KEY = "wiz.bulbs";
 
@@ -54,4 +54,30 @@ export async function removeBulb(mac: string): Promise<boolean> {
   if (remaining.length === bulbs.length) return false;
   await writeStore(remaining);
   return true;
+}
+
+const FAVORITES_KEY = "wiz.favoriteColors";
+
+function sameColor(a: RGB, b: RGB): boolean {
+  return a.r === b.r && a.g === b.g && a.b === b.b;
+}
+
+export async function listFavoriteColors(): Promise<RGB[]> {
+  const raw = await AsyncStorage.getItem(FAVORITES_KEY);
+  return raw ? (JSON.parse(raw) as RGB[]) : [];
+}
+
+export async function addFavoriteColor(color: RGB): Promise<RGB[]> {
+  const favorites = await listFavoriteColors();
+  if (!favorites.some((f) => sameColor(f, color))) {
+    favorites.push(color);
+    await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+  }
+  return favorites;
+}
+
+export async function removeFavoriteColor(color: RGB): Promise<RGB[]> {
+  const favorites = (await listFavoriteColors()).filter((f) => !sameColor(f, color));
+  await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+  return favorites;
 }

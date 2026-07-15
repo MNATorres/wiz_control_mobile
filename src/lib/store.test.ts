@@ -88,3 +88,39 @@ describe("store", () => {
     expect(await store.removeBulb("nope")).toBe(false);
   });
 });
+
+describe("favorite colors", () => {
+  beforeEach(() => {
+    memory.clear();
+  });
+
+  const red = { r: 255, g: 0, b: 0 };
+  const blue = { r: 0, g: 0, b: 255 };
+
+  it("starts empty", async () => {
+    expect(await store.listFavoriteColors()).toEqual([]);
+  });
+
+  it("adds and persists a favorite color", async () => {
+    await store.addFavoriteColor(red);
+    expect(await store.listFavoriteColors()).toEqual([red]);
+  });
+
+  it("does not duplicate an already-saved color", async () => {
+    await store.addFavoriteColor(red);
+    const favorites = await store.addFavoriteColor(red);
+    expect(favorites).toEqual([red]);
+  });
+
+  it("removes a favorite color by value", async () => {
+    await store.addFavoriteColor(red);
+    await store.addFavoriteColor(blue);
+    expect(await store.removeFavoriteColor(red)).toEqual([blue]);
+    expect(await store.listFavoriteColors()).toEqual([blue]);
+  });
+
+  it("leaves the list untouched when removing a color that is not saved", async () => {
+    await store.addFavoriteColor(red);
+    expect(await store.removeFavoriteColor(blue)).toEqual([red]);
+  });
+});
