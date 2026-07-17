@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Pressable, StyleSheet, Switch, Text, TextInput, View } from "react-native";
 import Slider from "@react-native-community/slider";
 import * as api from "../lib/api";
+import { shouldShowErrorMessage } from "../lib/bulbStatus";
 import type { Bulb, PilotState, Scene } from "../lib/types";
 import { colorPalette, colors } from "../theme";
 
@@ -141,8 +142,8 @@ export function BulbCard({ bulb, scenes, onRenamed, onForgotten, onStateChange }
 
       {error && (
         <View style={styles.errorRow}>
-          <Text style={styles.errorText}>{error}</Text>
-          <Pressable onPress={forget}>
+          {shouldShowErrorMessage(pilot, error) && <Text style={styles.errorText}>{error}</Text>}
+          <Pressable onPress={forget} style={styles.forgetWrap}>
             <Text style={styles.forget}>Forget</Text>
           </Pressable>
         </View>
@@ -296,7 +297,6 @@ const styles = StyleSheet.create({
   errorRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     backgroundColor: colors.dangerBg,
     borderRadius: 10,
     paddingVertical: 6,
@@ -306,6 +306,9 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontSize: 12,
     flexShrink: 1,
+  },
+  forgetWrap: {
+    marginLeft: "auto",
   },
   forget: {
     color: colors.danger,
