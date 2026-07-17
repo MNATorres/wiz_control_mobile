@@ -65,11 +65,11 @@ src/
 │   ├── FlatScreen.tsx     # whole-apartment power/brightness/colors/favorites
 │   └── ThemesScreen.tsx   # preset cards with one-tap apply-to-all
 ├── components/
-│   └── BulbCard.tsx       # one bulb: rename (✎), on/off, brightness, color/white/scenes tabs
+│   └── BulbCard.tsx       # one bulb: rename (✎), on/off, state indicator, brightness, collapsible color/white/scenes
 └── lib/
     ├── api.ts             # high-level facade: discoverBulbs, setColor, setAll*, favorites, …
     ├── store.ts           # AsyncStorage persistence: bulbs (by MAC) + favorite colors
-    ├── color.ts           # HSV->RGB conversion + random vivid color
+    ├── color.ts           # HSV->RGB + kelvin->RGB conversions, random vivid color
     ├── presets.ts         # curated multi-bulb color presets (data + helpers)
     ├── polyfills.ts       # global Buffer shim required by react-native-udp
     ├── types.ts           # Bulb, PilotState, Scene, RGB
