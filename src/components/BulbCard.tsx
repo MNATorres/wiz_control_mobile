@@ -87,6 +87,23 @@ export function BulbCard({ bulb, scenes, onRenamed, onForgotten, onStateChange }
     api.forgetBulb(bulb.mac).then(() => onForgotten(bulb.mac)).catch((err: Error) => setError(err.message));
   };
 
+  // What the bulb is currently showing: a color dot (rgb), a white-tone dot
+  // with its kelvin label (temp), or the active scene's name.
+  const indicator = (() => {
+    if (!pilot) return null;
+    if (pilot.r !== undefined && pilot.g !== undefined && pilot.b !== undefined) {
+      return { dot: rgbString(pilot.r, pilot.g, pilot.b), label: null };
+    }
+    if (pilot.temp) {
+      const white = api.kelvinToRgb(pilot.temp);
+      return { dot: rgbString(white.r, white.g, white.b), label: `${pilot.temp}K` };
+    }
+    if (pilot.sceneId) {
+      return { dot: null, label: scenes.find((s) => s.id === pilot.sceneId)?.name ?? "Scene" };
+    }
+    return null;
+  })();
+
   return (
     <View style={[styles.card, !pilot && styles.offline]}>
       <View style={styles.header}>
@@ -112,7 +129,15 @@ export function BulbCard({ bulb, scenes, onRenamed, onForgotten, onStateChange }
           thumbColor={colors.text}
         />
       </View>
-      <Text style={styles.ip}>{bulb.ip}</Text>
+      <View style={styles.metaRow}>
+        <Text style={styles.ip}>{bulb.ip}</Text>
+        {indicator && (
+          <View style={[styles.stateChip, !pilot?.state && styles.stateChipOff]}>
+            {indicator.dot && <View style={[styles.stateDot, { backgroundColor: indicator.dot }]} />}
+            {indicator.label && <Text style={styles.stateLabel}>{indicator.label}</Text>}
+          </View>
+        )}
+      </View>
 
       {error && (
         <View style={styles.errorRow}>
@@ -239,10 +264,34 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 14,
   },
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: -6,
+  },
   ip: {
     fontSize: 11,
     color: colors.textMuted,
-    marginTop: -6,
+  },
+  stateChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  stateChipOff: {
+    opacity: 0.45,
+  },
+  stateDot: {
+    width: 13,
+    height: 13,
+    borderRadius: 7,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  stateLabel: {
+    fontSize: 11,
+    color: colors.textMuted,
   },
   errorRow: {
     flexDirection: "row",
