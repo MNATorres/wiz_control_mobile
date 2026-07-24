@@ -57,12 +57,13 @@ explicitly instead of claiming something "works".
 
 ```
 index.ts                   # entry: loads src/lib/polyfills BEFORE App (Buffer global)
-App.tsx                    # shell: safe-area header + custom Bulbs/Flat/Themes tab bar
+App.tsx                    # shell: safe-area header + custom Bulbs/Flat/Animated/Themes tab bar
 src/
 ├── theme.ts               # dark futuristic palette — single source of truth for colors
 ├── screens/
 │   ├── BulbsScreen.tsx    # discover button + Flat master switch + bulb card grid
 │   ├── FlatScreen.tsx     # whole-apartment power/brightness/colors/favorites
+│   ├── AnimatedScreen.tsx # animated WiZ scene themes applied to all bulbs
 │   └── ThemesScreen.tsx   # preset cards with one-tap apply-to-all
 ├── components/
 │   └── BulbCard.tsx       # one bulb: rename (✎), on/off, state indicator, brightness, collapsible color/white/scenes
@@ -71,6 +72,7 @@ src/
     ├── store.ts           # AsyncStorage persistence: bulbs (by MAC) + favorite colors
     ├── color.ts           # HSV->RGB + kelvin->RGB conversions, random vivid color
     ├── presets.ts         # curated multi-bulb color presets (data + helpers)
+    ├── animatedThemes.ts  # WiZ dynamic-scene themes (data + helpers)
     ├── polyfills.ts       # global Buffer shim required by react-native-udp
     ├── types.ts           # Bulb, PilotState, Scene, RGB
     └── wiz/

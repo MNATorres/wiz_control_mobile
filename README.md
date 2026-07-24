@@ -105,7 +105,7 @@ The logic layer (`src/lib/` — UDP transport, protocol, store, presets, api fac
 
 ## Usage
 
-The app has three tabs. **Bulbs**: tap **Discover** to scan the Wi-Fi network; a **Flat** master switch turns every bulb on/off at once (it reads as *on* whenever at least one bulb is on), and each bulb card (laid out two per row) has rename (✎), its own on/off switch, a live indicator of what the bulb is showing (color dot, white tone + kelvin label, or active scene name — dimmed while the bulb is off), brightness, and a collapsible **Colors & scenes** section with color palette, white color temperature, and scenes. **Flat**: whole-apartment controls — power, brightness, static colors, a 🎲 random vivid color, a full HSV color picker (hue/saturation/brightness sliders — any of the 16M colors), and favorite colors (save the current color, tap to apply, long-press to remove; persisted on the device). **Themes**: one-tap presets that apply a multi-color combination across all bulbs at once (Soft Pastels, Blues, Sleep, Violets, White & Gold, …).
+The app has four tabs. **Bulbs**: tap **Discover** to scan the Wi-Fi network; a **Flat** master switch turns every bulb on/off at once (it reads as *on* whenever at least one bulb is on), and each bulb card (laid out two per row) has rename (✎), its own on/off switch, a live indicator of what the bulb is showing (color dot, white tone + kelvin label, or active scene name — dimmed while the bulb is off), brightness, and a collapsible **Colors & scenes** section with color palette, white color temperature, and scenes. **Flat**: whole-apartment controls — power, brightness, static colors, a 🎲 random vivid color, a full HSV color picker (hue/saturation/brightness sliders — any of the 16M colors), and favorite colors (save the current color, tap to apply, long-press to remove; persisted on the device). **Animated**: one-tap animated themes (Ocean, Fireplace, Party, Candlelight, …) that set a WiZ dynamic scene on every bulb — the animation runs in the bulb firmware, so it keeps playing with the app closed. **Themes**: one-tap presets that apply a static multi-color combination across all bulbs at once (Soft Pastels, Blues, Sleep, Violets, White & Gold, …).
 
 ## Stack
 
@@ -118,7 +118,7 @@ The app has three tabs. **Bulbs**: tap **Discover** to scan the Wi-Fi network; a
 ## Project structure
 
 ```
-App.tsx                    # shell: header + Bulbs/Flat/Themes tab bar
+App.tsx                    # shell: header + Bulbs/Flat/Animated/Themes tab bar
 index.ts                   # entry; registers the Buffer polyfill
 scripts/
   generate-icons.mjs       # regenerates all app icon assets (npm run icons)
@@ -127,6 +127,7 @@ src/
   screens/
     BulbsScreen.tsx        # discover + Flat master switch + bulb card grid
     FlatScreen.tsx         # whole-apartment power/brightness/colors/favorites
+    AnimatedScreen.tsx     # animated WiZ scene themes applied to all bulbs
     ThemesScreen.tsx       # multi-bulb preset cards with one-tap apply
   components/
     BulbCard.tsx           # one bulb: rename, on/off, current-color indicator, brightness, colors
@@ -135,6 +136,7 @@ src/
     store.ts               # AsyncStorage persistence for known bulbs + favorite colors
     color.ts               # HSV->RGB + kelvin->RGB conversions, random vivid color
     presets.ts             # relaxing multi-bulb color presets
+    animatedThemes.ts      # WiZ dynamic-scene themes for the Animated tab
     polyfills.ts           # Buffer global for react-native-udp
     types.ts               # shared types
     wiz/
