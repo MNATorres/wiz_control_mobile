@@ -273,6 +273,42 @@ describe("applyPreset", () => {
   });
 });
 
+describe("applyAnimatedTheme", () => {
+  it("sends the theme's scene and speed to every stored bulb, turning them on", async () => {
+    seedBulbs([
+      { mac: "aa", ip: "192.168.100.11" },
+      { mac: "bb", ip: "192.168.100.12" },
+    ]);
+
+    await api.applyAnimatedTheme("fireplace");
+
+    const fireplace = api.getAnimatedThemes().find((t) => t.key === "fireplace")!;
+    const expected = {
+      method: "setPilot",
+      params: { state: true, sceneId: fireplace.sceneId, speed: fireplace.speed },
+    };
+    expect(sendUnicast.mock.calls).toEqual([
+      ["192.168.100.11", expected],
+      ["192.168.100.12", expected],
+    ]);
+  });
+
+  it("keeps going when individual bulbs fail", async () => {
+    seedBulbs([
+      { mac: "aa", ip: "192.168.100.11" },
+      { mac: "bb", ip: "192.168.100.12" },
+    ]);
+    sendUnicast.mockRejectedValueOnce(new Error("offline"));
+
+    await expect(api.applyAnimatedTheme("ocean")).resolves.toBeUndefined();
+    expect(sendUnicast).toHaveBeenCalledTimes(2);
+  });
+
+  it("throws for an unknown theme", async () => {
+    await expect(api.applyAnimatedTheme("nope")).rejects.toThrow("Unknown animated theme");
+  });
+});
+
 describe("renameBulb / forgetBulb", () => {
   it("renames a known bulb and returns it", async () => {
     seedBulbs([{ mac: "aa", ip: "192.168.100.11" }]);

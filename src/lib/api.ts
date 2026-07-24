@@ -2,6 +2,7 @@ import { getPilotMessage, setPilotMessage, type PilotParams } from "./wiz/protoc
 import { sendBroadcast, sendUnicast } from "./wiz/udp";
 import { SCENES } from "./wiz/scenes";
 import { PRESETS, colorForIndex, getPreset, type Preset } from "./presets";
+import { ANIMATED_THEMES, getAnimatedTheme, type AnimatedTheme } from "./animatedThemes";
 import * as store from "./store";
 import type { Bulb, PilotState, RGB, Scene } from "./types";
 
@@ -69,6 +70,27 @@ export async function setAllColor(rgb: RGB): Promise<void> {
   await Promise.allSettled(
     bulbs.map((bulb) =>
       sendUnicast(bulb.ip, setPilotMessage({ state: true, r: rgb.r, g: rgb.g, b: rgb.b })),
+    ),
+  );
+}
+
+export function getAnimatedThemes(): AnimatedTheme[] {
+  return ANIMATED_THEMES;
+}
+
+// The animation itself runs in the bulb firmware — one command per bulb and
+// it keeps playing even after the app is closed.
+export async function applyAnimatedTheme(key: string): Promise<void> {
+  const theme = getAnimatedTheme(key);
+  if (!theme) throw new Error("Unknown animated theme");
+
+  const bulbs = await store.listBulbs();
+  await Promise.allSettled(
+    bulbs.map((bulb) =>
+      sendUnicast(
+        bulb.ip,
+        setPilotMessage({ state: true, sceneId: theme.sceneId, speed: theme.speed }),
+      ),
     ),
   );
 }
