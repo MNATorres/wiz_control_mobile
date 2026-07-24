@@ -2,15 +2,17 @@ import { useState } from "react";
 import { Pressable, StatusBar as RNStatusBar, StyleSheet, Text, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { colors } from "./src/theme";
+import { AnimatedScreen } from "./src/screens/AnimatedScreen";
 import { BulbsScreen } from "./src/screens/BulbsScreen";
 import { FlatScreen } from "./src/screens/FlatScreen";
 import { ThemesScreen } from "./src/screens/ThemesScreen";
 
-type Tab = "bulbs" | "flat" | "themes";
+type Tab = "bulbs" | "flat" | "animated" | "themes";
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "bulbs", label: "Bulbs" },
   { key: "flat", label: "Flat" },
+  { key: "animated", label: "Animated" },
   { key: "themes", label: "Themes" },
 ];
 
@@ -28,7 +30,15 @@ export default function App() {
       </View>
 
       <View style={styles.body}>
-        {tab === "bulbs" ? <BulbsScreen /> : tab === "flat" ? <FlatScreen /> : <ThemesScreen />}
+        {tab === "bulbs" ? (
+          <BulbsScreen />
+        ) : tab === "flat" ? (
+          <FlatScreen />
+        ) : tab === "animated" ? (
+          <AnimatedScreen />
+        ) : (
+          <ThemesScreen />
+        )}
       </View>
 
       <View style={styles.tabBar}>
