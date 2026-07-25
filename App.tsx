@@ -90,28 +90,29 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.surfaceDeep,
-    paddingTop: 10,
+    paddingTop: 14,
     // The app draws edge-to-edge on Android, so the system navigation bar
     // (48dp with 3-button nav) overlays the bottom — pad past it.
-    paddingBottom: 58,
+    paddingBottom: 62,
   },
   tabItem: {
     flex: 1,
     alignItems: "center",
-    gap: 5,
+    gap: 6,
+    paddingVertical: 4,
   },
   tabDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 7,
+    height: 7,
+    borderRadius: 4,
     backgroundColor: "transparent",
   },
   tabDotActive: {
     backgroundColor: colors.accent,
   },
   tabLabel: {
-    fontSize: 13,
-    fontWeight: "600",
+    fontSize: 16,
+    fontWeight: "700",
     color: colors.textMuted,
   },
   tabLabelActive: {
