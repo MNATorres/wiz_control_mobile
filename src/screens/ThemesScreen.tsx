@@ -44,16 +44,19 @@ export function ThemesScreen() {
         {presets.map((preset) => (
           <View key={preset.key} style={[styles.card, applied === preset.key && styles.cardApplied]}>
             <View style={styles.swatches}>
-              {preset.colors.map((c, i) => (
-                <View
-                  key={i}
-                  style={[
-                    styles.swatch,
-                    { backgroundColor: `rgb(${c.r}, ${c.g}, ${c.b})` },
-                    i > 0 && styles.swatchOverlap,
-                  ]}
-                />
-              ))}
+              {preset.colors.map((c, i) => {
+                const rgb = api.presetColorToRgb(c);
+                return (
+                  <View
+                    key={i}
+                    style={[
+                      styles.swatch,
+                      { backgroundColor: `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})` },
+                      i > 0 && styles.swatchOverlap,
+                    ]}
+                  />
+                );
+              })}
             </View>
             <View style={styles.cardBody}>
               <Text style={styles.cardTitle}>{preset.name}</Text>
