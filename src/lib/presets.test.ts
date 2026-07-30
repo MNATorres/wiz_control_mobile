@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { colorForIndex, getPreset, PRESETS } from "./presets";
+import { colorForIndex, getPreset, presetColorToRgb, PRESETS } from "./presets";
 
 describe("getPreset", () => {
   it("returns the preset matching the given key", () => {
@@ -47,18 +47,47 @@ describe("PRESETS", () => {
     }
   });
 
-  it("keeps every color within RGB and dimming bounds", () => {
+  it("keeps every tone within RGB/kelvin and dimming bounds", () => {
     for (const preset of PRESETS) {
       for (const c of preset.colors) {
-        expect(c.r).toBeGreaterThanOrEqual(0);
-        expect(c.r).toBeLessThanOrEqual(255);
-        expect(c.g).toBeGreaterThanOrEqual(0);
-        expect(c.g).toBeLessThanOrEqual(255);
-        expect(c.b).toBeGreaterThanOrEqual(0);
-        expect(c.b).toBeLessThanOrEqual(255);
+        if ("temp" in c) {
+          expect(c.temp).toBeGreaterThanOrEqual(2200);
+          expect(c.temp).toBeLessThanOrEqual(6500);
+        } else {
+          for (const channel of [c.r, c.g, c.b]) {
+            expect(channel).toBeGreaterThanOrEqual(0);
+            expect(channel).toBeLessThanOrEqual(255);
+          }
+        }
         expect(c.dimming).toBeGreaterThanOrEqual(10);
         expect(c.dimming).toBeLessThanOrEqual(100);
       }
     }
+  });
+});
+
+describe("classic white presets", () => {
+  it("uses full-brightness kelvin whites, not RGB", () => {
+    const white = getPreset("classic-white")!;
+    const yellow = getPreset("classic-yellow")!;
+
+    expect(white.colors).toEqual([{ temp: 6500, dimming: 100 }]);
+    expect(yellow.colors).toEqual([{ temp: 2700, dimming: 100 }]);
+  });
+});
+
+describe("presetColorToRgb", () => {
+  it("passes RGB tones through unchanged", () => {
+    expect(presetColorToRgb({ r: 10, g: 20, b: 30, dimming: 50 })).toEqual({
+      r: 10,
+      g: 20,
+      b: 30,
+    });
+  });
+
+  it("approximates kelvin tones for display", () => {
+    const warm = presetColorToRgb({ temp: 2700, dimming: 100 });
+    expect(warm.r).toBe(255);
+    expect(warm.b).toBeLessThan(200);
   });
 });

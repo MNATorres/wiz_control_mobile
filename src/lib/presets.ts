@@ -1,9 +1,12 @@
-export interface PresetColor {
-  r: number;
-  g: number;
-  b: number;
-  dimming: number;
-}
+import { kelvinToRgb } from "./color";
+import type { RGB } from "./types";
+
+// A preset tone is either an RGB color or a kelvin white. Kelvin tones drive
+// the bulbs' dedicated white LEDs, which shine much brighter than RGB white.
+export type PresetColor = { dimming: number } & (
+  | { r: number; g: number; b: number }
+  | { temp: number }
+);
 
 export interface Preset {
   key: string;
@@ -11,7 +14,22 @@ export interface Preset {
   colors: PresetColor[];
 }
 
+// How a preset tone should look in the UI (kelvin whites approximated via kelvinToRgb).
+export function presetColorToRgb(color: PresetColor): RGB {
+  return "temp" in color ? kelvinToRgb(color.temp) : { r: color.r, g: color.g, b: color.b };
+}
+
 export const PRESETS: Preset[] = [
+  {
+    key: "classic-white",
+    name: "Classic White",
+    colors: [{ temp: 6500, dimming: 100 }],
+  },
+  {
+    key: "classic-yellow",
+    name: "Classic Yellow",
+    colors: [{ temp: 2700, dimming: 100 }],
+  },
   {
     key: "soft-pastels",
     name: "Soft Pastels",

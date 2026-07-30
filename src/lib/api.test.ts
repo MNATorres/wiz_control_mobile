@@ -237,19 +237,17 @@ describe("applyPreset", () => {
     await api.applyPreset("blue-red-mix");
 
     const preset = api.getPresets().find((p) => p.key === "blue-red-mix")!;
-    const expected = (ip: string, i: number) => [
-      ip,
-      {
-        method: "setPilot",
-        params: {
-          state: true,
-          r: preset.colors[i % preset.colors.length].r,
-          g: preset.colors[i % preset.colors.length].g,
-          b: preset.colors[i % preset.colors.length].b,
-          dimming: preset.colors[i % preset.colors.length].dimming,
+    const expected = (ip: string, i: number) => {
+      const tone = preset.colors[i % preset.colors.length];
+      const rgb = api.presetColorToRgb(tone);
+      return [
+        ip,
+        {
+          method: "setPilot",
+          params: { state: true, r: rgb.r, g: rgb.g, b: rgb.b, dimming: tone.dimming },
         },
-      },
-    ];
+      ];
+    };
     expect(sendUnicast.mock.calls).toEqual([
       expected("192.168.100.11", 0),
       expected("192.168.100.12", 1),
@@ -266,6 +264,17 @@ describe("applyPreset", () => {
 
     await expect(api.applyPreset("blues")).resolves.toBeUndefined();
     expect(sendUnicast).toHaveBeenCalledTimes(2);
+  });
+
+  it("sends kelvin white params for temperature-based presets", async () => {
+    seedBulbs([{ mac: "aa", ip: "192.168.100.11" }]);
+
+    await api.applyPreset("classic-yellow");
+
+    expect(sendUnicast).toHaveBeenCalledWith("192.168.100.11", {
+      method: "setPilot",
+      params: { state: true, temp: 2700, dimming: 100 },
+    });
   });
 
   it("throws for an unknown preset", async () => {

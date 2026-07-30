@@ -7,6 +7,7 @@ import * as store from "./store";
 import type { Bulb, PilotState, RGB, Scene } from "./types";
 
 export { hsvToRgb, kelvinToRgb, randomColor } from "./color";
+export { presetColorToRgb } from "./presets";
 
 export function listBulbs(): Promise<Bulb[]> {
   return store.listBulbs();
@@ -131,10 +132,11 @@ export async function applyPreset(key: string): Promise<void> {
   await Promise.allSettled(
     bulbs.map((bulb, index) => {
       const color = colorForIndex(preset, index);
-      return sendUnicast(
-        bulb.ip,
-        setPilotMessage({ state: true, r: color.r, g: color.g, b: color.b, dimming: color.dimming }),
-      );
+      const params =
+        "temp" in color
+          ? { state: true, temp: color.temp, dimming: color.dimming }
+          : { state: true, r: color.r, g: color.g, b: color.b, dimming: color.dimming };
+      return sendUnicast(bulb.ip, setPilotMessage(params));
     }),
   );
 }
