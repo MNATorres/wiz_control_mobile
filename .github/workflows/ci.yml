@@ -32,11 +32,10 @@ jobs:
           node-version: 22
           cache: npm
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 17
-          cache: gradle
 
       - run: npm ci
 
@@ -44,6 +43,9 @@ jobs:
       - run: npx expo prebuild --platform android --no-install
         env:
           EXPO_NO_TELEMETRY: "1"
+
+      # Gradle caching — must come after prebuild, since android/ is generated
+      - uses: gradle/actions/setup-gradle@v4
 
       - run: chmod +x android/gradlew
 
