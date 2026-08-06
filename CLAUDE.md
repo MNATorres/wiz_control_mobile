@@ -36,7 +36,9 @@ eas build --platform android --profile preview  # cloud APK build
 ```
 
 No linter is configured yet. A change isn't done until `npx tsc --noEmit` and `npm test`
-both pass — CI (`.github/workflows/ci.yml`) runs both on every push/PR to `main`.
+both pass — CI (`.github/workflows/ci.yml`) runs both on every push/PR to `main`, and a
+second `build-apk` job (gated on the checks) runs `expo prebuild` + `gradlew
+assembleRelease` and uploads the APK as the `wiz-control-apk` artifact (30-day retention).
 
 Tests are colocated as `<name>.test.ts` next to the file they cover, run under Node with
 vitest, and mock the native modules (`react-native-udp` via a FakeSocket class,

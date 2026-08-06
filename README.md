@@ -67,6 +67,10 @@ The **first** Gradle build downloads dependencies and takes ~10-30 min; after th
 
 (Alternative: `npm run android` builds and installs a debug variant directly on a connected device/emulator in one step.)
 
+**Option C — Download from CI (no tools needed at all):**
+
+Every push to `main` builds the APK in GitHub Actions (after type-check + tests pass). Open the run in the [Actions tab](https://github.com/MNATorres/wiz_control_mobile/actions), scroll to **Artifacts**, and download **wiz-control-apk** (kept for 30 days). CI signs with the same debug keystore as local builds, so it installs over an Option B APK without uninstalling.
+
 ### 3. Install and use it
 
 When installing, Google Play Protect will warn that it hasn't seen this developer before — tap **"Install anyway"** (the small text link, *not* "Got it", which cancels the install). That's expected for any self-built APK.
